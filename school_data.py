@@ -32,39 +32,83 @@ school_map = {'Centennial High School': '1224', 'Robert Thirsk School': '1679',
     'John G Diefenbaker High School': '9860', 'Lester B. Pearson High School': '9865'}
 
 class SchoolStats:
-    def __init__(self, data):
+    """
+    A class to compute and print statistics for a specific school and general statistics for all schools.
+    """
+    # Initialize SchoolStats with given data and school map.
+    def __init__(self, data, school_map):
         self.data = data
+        self.school_map = school_map
+        self.school_code = ''
+        self.school_name = ''
+        self.school_index = 0
 
-    def school_stats(self, school_name, school_code, school_index):
+    def get_name_code(self, school_input):
+        """
+        Given the school name or code, store the corresponding school, code and the index. If an invalid name or code is provided,
+        a ValueError exception is used to prompt for re-entry without terminating the program.
+
+        Args:
+            school_input (str): School name or code input by the user
+        """
+        i = True
+        while i:
+            try:
+                # If the input is a valid school name, get the corresponding school code.
+                if school_input in school_map:
+                    self.school_code = school_map[school_input]
+                    self.school_name = school_input
+                    i = False
+
+                # If the input is a valid school code, find the corresponding school name.
+                elif school_input in school_map.values():
+                    self.school_code = school_input
+                    for name, code in list(school_map.items()):
+                        if code == school_input:
+                            self.school_name = name
+                            i = False
+
+                else:
+                    # If the input is invalid, raise a ValueError.
+                    raise ValueError("not a valid input")
+                        
+            except ValueError:
+                    print("\nYou must enter a valid school name or code.")
+                    school_input = input("Please enter the high school name or school code: ")
+
+
+        # Get the index of the school in the data array.
+        self.school_index = list(school_map.values()).index(self.school_code)
+
+    def school_stats(self):
         """
         Calculates and prints the statistics for the user specified school.
         """
-        print("School Name:", school_name + ",", "School Code:", school_code)
 
         # Calculate and print mean enrollment across all years for each grade
-        print("Mean enrollment for Grade 10:", int(np.nanmean(data[:, school_index, 0])))
-        print("Mean enrollment for Grade 11:", int(np.nanmean(data[:, school_index, 1])))
-        print("Mean enrollment for Grade 12:", int(np.nanmean(data[:, school_index, 2])))
+        print("Mean enrollment for Grade 10:", int(np.nanmean(data[:, self.school_index, 0])))
+        print("Mean enrollment for Grade 11:", int(np.nanmean(data[:, self.school_index, 1])))
+        print("Mean enrollment for Grade 12:", int(np.nanmean(data[:, self.school_index, 2])))
 
         # Print highest and lowest enrollment for a single grade
-        print("Highest enrollment for a single grade:", int(np.nanmax(data[:, school_index, :])))
-        print("Lowest enrollment for a single grade:", int(np.nanmin(data[:, school_index, :])))
+        print("Highest enrollment for a single grade:", int(np.nanmax(data[:, self.school_index, :])))
+        print("Lowest enrollment for a single grade:", int(np.nanmin(data[:, self.school_index, :])))
 
         # Print total enrollments for each year and over ten years
         year = 2013
         num_years = data.shape[0]
 
         for i in range(num_years):
-            print("Total enrollment for", year, ":", int(np.nansum(data[i, school_index, :])))
+            print("Total enrollment for", year, ":", int(np.nansum(data[i, self.school_index, :])))
             year += 1
         
         # Print the total tne year enrollment
-        print("Total ten year enrollment:", int(np.nansum(data[:, school_index, :])))
+        print("Total ten year enrollment:", int(np.nansum(data[:, self.school_index, :])))
         # Print the mean total enrollment over 10 years
-        print("Mean total enrollment over 10 years:", int(np.nansum(data[:, school_index, :]) / num_years))
+        print("Mean total enrollment over 10 years:", int(np.nansum(data[:, self.school_index, :]) / num_years))
 
         # Print median value for enrollments over 500, if any. If not, print that there is no enrollments over 500
-        specific_data = data[:, school_index, :]
+        specific_data = data[:, self.school_index, :]
         if np.any(specific_data > 500): 
             print("For all enrollments over 500, the median value was:", int(np.nanmedian(specific_data[specific_data > 500])))
         else:
@@ -87,59 +131,28 @@ class SchoolStats:
 
 
 def main():
-    """
-    Main function for computing and printing school enrollment statistics.
-    
-    This function prompts the user to enter a high school name or school code,
-    retrieves and displays various enrollment statistics for the specified school,
-    and prints general statistics for all schools.
-    """
+    # main method to calculate and print school specific statistics and general statistics. 
     print("\nENSF 692 School Enrollment Statistics\n")
-
-    school_data = SchoolStats(data) 
+    # Create an instance of the class SchoolStats
+    school_data = SchoolStats(data, school_map) 
 
     # Print Stage 1 requirements here
-    print("Shape of full data array:", data.shape)
-    print("Dimensions of full data array:", data.ndim)
+    print("Shape of full data array:", data.shape) # prints shape of data
+    print("Dimensions of full data array:", data.ndim) #prints dimensions of data
 
     # Prompt for user input 
-    i = True
-    while i:
-        try:
-            # Prompt the user to enter a high school name or code
-            school_input = input("Please enter the high school name or school code: ")
-            # If the input is a valid school name, get the corresponding school code.
-            if school_input in school_map:
-                school_code = school_map[school_input]
-                school_name = school_input
-                i = False
-
-            # If the input is a valid school code, find the corresponding school name.
-            elif school_input in school_map.values():
-                school_code = school_input
-                for name, code in list(school_map.items()):
-                    if code == school_input:
-                        school_name = name
-                        i = False
-
-            else:
-                # If the input is invalid, raise a ValueError.
-                raise ValueError("not a valid input")
-                        
-        except ValueError:
-                print("\nYou must enter a valid school name or code.")
-
-    # Get the index of the school in the data array.
-    school_index = list(school_map.values()).index(school_code)
+    school_input = input("Please enter the high school name or school code: ")
+    school_data.get_name_code(school_input)
 
     # Print Stage 2 requirements here
     print("\n***Requested School Statistics***\n")
-
-    school_data.school_stats(school_name, school_code, school_index)
+    # Prints the methods in school_stats method
+    print("School Name:", school_data.school_name + ",", "School Code:", school_data.school_code)
+    school_data.school_stats()
 
     # Print Stage 3 requirements here
     print("\n***General Statistics for All Schools***\n")
-
+    # Prints the methods in general_stats method
     school_data.general_stats()
 
 if __name__ == '__main__':
