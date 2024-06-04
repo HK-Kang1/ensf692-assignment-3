@@ -31,6 +31,61 @@ school_map = {'Centennial High School': '1224', 'Robert Thirsk School': '1679',
     'Sir Winston Churchill High School': '9857', 'Dr. E. P. Scarlett High School': '9858',
     'John G Diefenbaker High School': '9860', 'Lester B. Pearson High School': '9865'}
 
+class SchoolStats:
+    def __init__(self, data):
+        self.data = data
+
+    def school_stats(self, school_name, school_code, school_index):
+        """
+        Calculates and prints the statistics for the user specified school.
+        """
+        print("School Name:", school_name + ",", "School Code:", school_code)
+
+        # Calculate and print mean enrollment across all years for each grade
+        print("Mean enrollment for Grade 10:", int(np.nanmean(data[:, school_index, 0])))
+        print("Mean enrollment for Grade 11:", int(np.nanmean(data[:, school_index, 1])))
+        print("Mean enrollment for Grade 12:", int(np.nanmean(data[:, school_index, 2])))
+
+        # Print highest and lowest enrollment for a single grade
+        print("Highest enrollment for a single grade:", int(np.nanmax(data[:, school_index, :])))
+        print("Lowest enrollment for a single grade:", int(np.nanmin(data[:, school_index, :])))
+
+        # Print total enrollments for each year and over ten years
+        year = 2013
+        num_years = data.shape[0]
+
+        for i in range(num_years):
+            print("Total enrollment for", year, ":", int(np.nansum(data[i, school_index, :])))
+            year += 1
+        
+        # Print the total tne year enrollment
+        print("Total ten year enrollment:", int(np.nansum(data[:, school_index, :])))
+        # Print the mean total enrollment over 10 years
+        print("Mean total enrollment over 10 years:", int(np.nansum(data[:, school_index, :]) / num_years))
+
+        # Print median value for enrollments over 500, if any. If not, print that there is no enrollments over 500
+        specific_data = data[:, school_index, :]
+        if np.any(specific_data > 500): 
+            print("For all enrollments over 500, the median value was:", int(np.nanmedian(specific_data[specific_data > 500])))
+        else:
+            print("No enrollments over 500.")
+            
+    def general_stats(self):
+        """
+        Calculates and prints general statistics for all schools.
+        """
+        # Print mean enrollment of 2013
+        print("Mean enrollment in 2013:", int(np.nanmean(data[0, :, :])))
+        # Print mean enrollment of 2022
+        print("Mean enrollment in 2022:", int(np.nanmean(data[9, :, :])))
+        # Print total graduating class of 2022
+        print("Total graduating class of 2022:", int(np.nansum(data[9, :, 2])))
+        # Print highest enrollment for a single grade
+        print("Highest enrollment for a single grade:", int(np.nanmax(data[:, :, :])))
+        # Print lowest enrollment for a single grade
+        print("Lowest enrollment for a single grade:", int(np.nanmin(data[:, :, :])), "\n")
+
+
 def main():
     """
     Main function for computing and printing school enrollment statistics.
@@ -40,6 +95,9 @@ def main():
     and prints general statistics for all schools.
     """
     print("\nENSF 692 School Enrollment Statistics\n")
+
+    school_data = SchoolStats(data) 
+
     # Print Stage 1 requirements here
     print("Shape of full data array:", data.shape)
     print("Dimensions of full data array:", data.ndim)
@@ -67,55 +125,22 @@ def main():
             else:
                 # If the input is invalid, raise a ValueError.
                 raise ValueError("not a valid input")
-                    
+                        
         except ValueError:
-            print("\nYou must enter a valid school name or code.")
+                print("\nYou must enter a valid school name or code.")
 
     # Get the index of the school in the data array.
     school_index = list(school_map.values()).index(school_code)
-        
 
     # Print Stage 2 requirements here
     print("\n***Requested School Statistics***\n")
-    print("School Name:", school_name + ",", "School Code:", school_code)
 
-    # Calculate and print mean enrollment across all years for each grade
-    print("Mean enrollment for Grade 10:", int(np.nanmean(data[:, school_index, 0])))
-    print("Mean enrollment for Grade 11:", int(np.nanmean(data[:, school_index, 1])))
-    print("Mean enrollment for Grade 12:", int(np.nanmean(data[:, school_index, 2])))
-
-    # Print highest and lowest enrollment for a single grade
-    print("Highest enrollment for a single grade:", int(np.nanmax(data[:, school_index, :])))
-    print("Lowest enrollment for a single grade:", int(np.nanmin(data[:, school_index, :])))
-
-    # Print total enrollments for each year and over ten years
-    year = 2013
-    num_years, num_schools, num_grades = data.shape
-
-    for i in range(num_years):
-        print("Total enrollment for", year, ":", int(np.nansum(data[i, school_index, :])))
-        year += 1
-    
-    print("Total ten year enrollment:", int(np.nansum(data[:, school_index, :])))
-    print("Mean total enrollment over 10 years:", int(np.nansum(data[:, school_index, :]) / num_years))
-
-    # Print median value for enrollments over 500, if any. If not, print that there is no enrollments over 500
-    specific_data = data[:, school_index, :]
-    if np.any(specific_data < 500): 
-        print("No enrollments over 500.")
-    else:
-        print("For all enrollments over 500, the median value was:", int(np.nanmedian(specific_data[specific_data > 500])))
+    school_data.school_stats(school_name, school_code, school_index)
 
     # Print Stage 3 requirements here
     print("\n***General Statistics for All Schools***\n")
 
-    # Print general stats: mean enrollment of 2013 and 2022, total graduating class of 2022,
-    # highest enrollment for a single grade, and the lowest enrollment for a single grade.
-    print("Mean enrollment in 2013:", int(np.nanmean(data[0, :, :])))
-    print("Mean enrollment in 2022:", int(np.nanmean(data[9, :, :])))
-    print("Total graduating class of 2022:", int(np.nansum(data[9, :, 2])))
-    print("Highest enrollment for a single grade:", int(np.nanmax(data[:, :, :])))
-    print("Lowest enrollment for a single grade:", int(np.nanmin(data[:, :, :])), "\n")
+    school_data.general_stats()
 
 if __name__ == '__main__':
     main()
